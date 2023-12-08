@@ -1,8 +1,24 @@
 import pygame 
 from pygame.locals import K_ESCAPE, KEYDOWN, K_LEFT, K_RIGHT, K_UP, K_DOWN, QUIT
 import time 
+import random
 
 SIZE = 40 # Esto es para el tamaño de la imagen
+
+class Apple:
+    def __init__(self, screen_p):
+        self.image = pygame.image.load("apple.jpg").convert() 
+        self.screen_p = screen_p
+        self.x = SIZE * random.randint(0, (1500-SIZE) // SIZE) # Posición aleatoria en el eje x
+        self.y = SIZE * random.randint(0, (1000-SIZE) // SIZE) # Posición aleatoria en el eje y
+        
+    def draw(self):
+        self.screen_p.blit(self.image, (self.x, self.y))
+        pygame.display.update()
+        
+    def move(self):
+        self.x = SIZE * random.randint(0, (1500-SIZE) // SIZE) # Nueva posición aleatoria en el eje x
+        self.y = SIZE * random.randint(0, (1000-SIZE) // SIZE) # Nueva posición aleatoria en el eje y
 
 class Snake:
     def __init__(self, screen_p, length):
@@ -46,6 +62,12 @@ class Snake:
             self.block_y[0] += SIZE
             
         self.draw()
+    
+    
+    def increase_length(self):
+        self.length += 1
+        self.block_x.append(-1)
+        self.block_y.append(-1)
         
         
 
@@ -58,6 +80,8 @@ class Game:
         self.screen.fill((255, 255, 255)) # Esto es para el color de la ventana
         self.snake = Snake(self.screen, 5)
         self.snake.draw()
+        self.apple = Apple(self.screen)
+        self.apple.draw()
     
     def run(self):
         running = True
@@ -79,6 +103,11 @@ class Game:
                     running = False
                     
             self.snake.walk()
+            if self.snake.block_x[0] == self.apple.x and self.snake.block_y[0] == self.apple.y:
+                self.snake.increase_length()
+                self.apple.move()
+            self.apple.draw()
+            self.apple.draw()
             time.sleep(0.3) # 0.3 seconds move. It moves every 0.3 seconds
                 
 
