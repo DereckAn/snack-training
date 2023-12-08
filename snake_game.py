@@ -1,7 +1,9 @@
-import pygame
-from pygame.locals import K_ESCAPE, KEYDOWN, K_LEFT, K_RIGHT, K_UP, K_DOWN, QUIT, K_RETURN
-import time
 import random
+import time
+
+import pygame
+from pygame.locals import (K_DOWN, K_ESCAPE, K_LEFT, K_RETURN, K_RIGHT, K_UP,
+                           KEYDOWN, QUIT)
 
 SIZE = 40 # Esto es para el tamaño de la imagen
 SCREEN_X = 1500
@@ -34,10 +36,8 @@ class Snake:
         self.direction = "right"
     
     def draw(self):
-        self.screen_p.fill((255, 255, 255))
         for i in range(self.length):
             self.screen_p.blit(self.block, (self.block_x[i], self.block_y[i])) # Esto es para poner la imagen en una posicion especifica
-        pygame.display.update()
     
     def move_left(self):
         self.direction = "left"
@@ -81,6 +81,9 @@ class Game:
     running = True
     def __init__(self): # This is the constructor
         pygame.init()
+        self.play_background_music()
+        pygame.display.set_caption("Snake Game") # Esto es para el titulo de la ventana
+        pygame.mixer.init()
         self.screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y)) # Esto es para la ventana # con el self. estamos haciendo que la variable sea global-- class member
         self.screen.fill(BACKGROUND_COLOR) # Esto es para el color de la ventana
         self.snake = Snake(self.screen, INITIAL_LENGTH)
@@ -88,12 +91,31 @@ class Game:
         self.apple = Apple(self.screen)
         self.apple.draw()
         
+    def moder(self):
+        bite = pygame.mixer.Sound('./bite.wav')
+        pygame.mixer.Sound.play(bite)
+    
+    def pared(self):
+        wall = pygame.mixer.Sound('./wall.wav')
+        pygame.mixer.Sound.play(wall)
+        
+    def play_background_music(self):
+        pygame.mixer.music.load('./bg_music.mp3')
+        pygame.mixer.music.play()
+        
+    def background(self):
+        bg = pygame.image.load("./pasto.jpg")
+        bg = pygame.transform.scale(bg, (SCREEN_X, SCREEN_Y))
+        self.screen.blit(bg, (0, 0))
+        
     def play(self):
+        self.background()
         self.snake.walk()
         self.display_score()
         
         #Collision with apple
         if self.snake.block_x[0] == self.apple.x and self.snake.block_y[0] == self.apple.y:
+            self.moder()
             self.snake.increase_length()
             self.apple.move()
             
@@ -102,25 +124,30 @@ class Game:
         #Collision with snake body
         for i in range(1, self.snake.length):
             if self.snake.block_x[i] == self.apple.x and self.snake.block_y[i] == self.apple.y:
+                self.moder()
                 self.apple.move()
         
         for (block_x, block_y) in zip(self.snake.block_x[1:], self.snake.block_y[1:]):
             if self.snake.block_x[0] == block_x and self.snake.block_y[0] == block_y:
-                raise "Hit the body error"
+                self.moder()
+                raise ValueError("Hit the body error")
 
         # Collision with the boundaries
         if not (0 <= self.snake.block_x[0] <= SCREEN_X and 0 <= self.snake.block_y[0] <= SCREEN_Y):
-            raise "Hit the boundary error"
-        
+            self.pared()
+            raise ValueError("Hit the boundary error")
+    
+   
     
     def show_game_over(self):
-        self.screen.fill(BACKGROUND_COLOR)
+        self.background()
         font = pygame.font.SysFont('arial', 30)
         line1 = font.render(f"Game is over! Your score is {self.snake.length - INITIAL_LENGTH}", True, (200, 200, 200))
         self.screen.blit(line1, (200, 300))
-        line2 = font.render(f"To play again press Enter. To exit press Escape!", True, (200, 200, 200))
+        line2 = font.render("To play again press Enter. To exit press Escape!", True, (200, 200, 200))
         self.screen.blit(line2, (200, 350))
-        pygame.display.update()
+        pygame.display.flip()
+        pygame.mixer.music.pause()
     
     def display_score(self):
         font = pygame.font.SysFont('arial', 30)
@@ -140,8 +167,8 @@ class Game:
                     if event.key == K_ESCAPE: # Esto es para ver si se presiono la tecla ESC
                         self.running = False
                     if event.key == K_RETURN:
+                        pygame.mixer.music.unpause()
                         pause = False
-                        
                     if not pause:
                         if event.key == K_LEFT:
                             self.snake.move_left()
@@ -170,8 +197,6 @@ if __name__ == "__main__":
     game.run()
     
     
-    pygame.display.set_caption("Snake Game") # Esto es para el titulo de la ventana
-    # pygame.display.flip() # Esto es para actualizar la ventana
     
     
     
