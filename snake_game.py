@@ -8,7 +8,7 @@ from pygame.locals import (K_DOWN, K_ESCAPE, K_LEFT, K_RETURN, K_RIGHT, K_UP,
 SIZE = 40 # Esto es para el tamaño de la imagen
 SCREEN_X = 1500
 SCREEN_Y = 1000
-BACKGROUND_COLOR = (255, 255, 255) # Esto es para el color de la ventana
+BACKGROUND_COLOR = (0, 0, 0) # Esto es para el color de la ventana
 INITIAL_LENGTH = 5
 
 class Apple:
@@ -38,6 +38,8 @@ class Snake:
     def draw(self):
         for i in range(self.length):
             self.screen_p.blit(self.block, (self.block_x[i], self.block_y[i])) # Esto es para poner la imagen en una posicion especifica
+        pygame.display.update()
+        
     
     def move_left(self):
         self.direction = "left"
@@ -81,15 +83,18 @@ class Game:
     running = True
     def __init__(self): # This is the constructor
         pygame.init()
-        self.play_background_music()
+        # self.play_background_music()
         pygame.display.set_caption("Snake Game") # Esto es para el titulo de la ventana
         pygame.mixer.init()
         self.screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y)) # Esto es para la ventana # con el self. estamos haciendo que la variable sea global-- class member
-        self.screen.fill(BACKGROUND_COLOR) # Esto es para el color de la ventana
+        # self.screen.fill(BACKGROUND_COLOR) # Esto es para el color de la ventana
         self.snake = Snake(self.screen, INITIAL_LENGTH)
         self.snake.draw()
         self.apple = Apple(self.screen)
         self.apple.draw()
+        pygame.display.update()
+        
+        
         
     def moder(self):
         bite = pygame.mixer.Sound('./bite.wav')
@@ -99,19 +104,21 @@ class Game:
         wall = pygame.mixer.Sound('./wall.wav')
         pygame.mixer.Sound.play(wall)
         
-    def play_background_music(self):
-        pygame.mixer.music.load('./bg_music.mp3')
-        pygame.mixer.music.play()
+    # def play_background_music(self):
+    #     pygame.mixer.music.load('./bg_music.mp3')
+    #     pygame.mixer.music.play()
         
-    def background(self):
-        bg = pygame.image.load("./pasto.jpg")
-        bg = pygame.transform.scale(bg, (SCREEN_X, SCREEN_Y))
-        self.screen.blit(bg, (0, 0))
+    # def background(self):
+    #     bg = pygame.image.load("./pasto.jpg")
+    #     bg = pygame.transform.scale(bg, (SCREEN_X, SCREEN_Y))
+    #     self.screen.blit(bg, (0, 0))
         
     def play(self):
-        self.background()
+        # self.background()
+        self.screen.fill(BACKGROUND_COLOR)
         self.snake.walk()
         self.display_score()
+        
         
         #Collision with apple
         if self.snake.block_x[0] == self.apple.x and self.snake.block_y[0] == self.apple.y:
@@ -140,7 +147,7 @@ class Game:
    
     
     def show_game_over(self):
-        self.background()
+        # self.background()
         font = pygame.font.SysFont('arial', 30)
         line1 = font.render(f"Game is over! Your score is {self.snake.length - INITIAL_LENGTH}", True, (200, 200, 200))
         self.screen.blit(line1, (200, 300))
@@ -195,6 +202,7 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     game.run()
+    
     
     
     
